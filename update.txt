@@ -1,0 +1,67 @@
+Sub update()
+
+response = MsgBox("Are You Sure?", vbYesNo)
+ 
+If response = vbNo Then
+    MsgBox ("Macro Ending")
+    Exit Sub
+End If
+
+  
+  'new due date formula
+  Sheets("tracker").Range("Q3:Q" & Cells(Rows.Count, "B").End(xlUp).Row).FormulaR1C1 = _
+         "=IFERROR(IF(RC[-11]="""","""", IF(RC[-9]=100,RC[-11]+7, IF(RC[-9]=200,RC[-11]+14, IF(RC[-9]=300,RC[-11]+21, IF(RC[-9]=60,IF(AND(MONTH(RC[-11])=1,OR(DAY(RC[-11])=30,DAY(RC[-11])=31)),DATE(YEAR(RC[-11]),3,1),DATE(YEAR(RC[-11]),MONTH(RC[-11])+1,DAY(RC[-11]))), IF(RC[-9]=400,IF(AND(MONTH(RC[-11])=1,OR(DAY(RC[-11])=30,DAY(RC[-11])=31)),DATE(YEAR(RC[-11]),3,1),DATE(YEAR(RC[-11]),MONTH(RC[-11])+1,DAY(RC[-11]))),RC[-11])))))) ,"""")"
+
+  'new BPA End Date formula
+  Sheets("tracker").Range("R3:R" & Cells(Rows.Count, "B").End(xlUp).Row).FormulaR1C1 = _
+         "=IFERROR(IF(RC[-9]="""","""", IF(RC[-10]=60,IF(AND(MONTH(RC[-9])=1, OR(DAY(RC[-9])=30, DAY(RC[-9])=31)),DATE(YEAR(RC[-9]),3,1),DATE(YEAR(RC[-9]),MONTH(RC[-9])+1,DAY(RC[-9]))),RC[-9])), RC[-9])"
+
+
+  'back-up collection $
+  Dim NextCol As Long
+    If Sheets("$ log").Range("A1").Value = "" Then
+        NextCol = 1
+    Else
+        NextCol = Sheets("$ log").Cells(1, Columns.Count).End(xlToLeft).Column + 1
+    End If
+   
+    Sheets("tracker").Range("H2:H" & Cells(Rows.Count, "B").End(xlUp).Row).Copy
+    Sheets("$ log").Select
+    Cells(1, NextCol).PasteSpecial xlValues
+    Application.CutCopyMode = False
+    Sheets("tracker").Select
+    Range("A1").Select
+    
+  'copy/paste new BPA end dates
+  Sheets("tracker").Select
+  ActiveSheet.Range("R3:R" & Cells(Rows.Count, "B").End(xlUp).Row).Copy
+    Range("I3").Select
+    Selection.PasteSpecial Paste:=xlPasteValues
+    
+    'copy/paste new due dates
+  Sheets("tracker").Select
+  ActiveSheet.Range("Q3:Q" & Cells(Rows.Count, "B").End(xlUp).Row).Copy
+    Range("F3").Select
+    Selection.PasteSpecial Paste:=xlPasteValues
+    
+ 'clear due date
+ ActiveSheet.Range("Q3:Q" & Cells(Rows.Count, "B").End(xlUp).Row).ClearContents
+ 
+ 'clear BPA End date
+ ActiveSheet.Range("R3:R" & Cells(Rows.Count, "B").End(xlUp).Row).ClearContents
+ 
+ 'clear $
+ ActiveSheet.Range("H3:H" & Cells(Rows.Count, "B").End(xlUp).Row).ClearContents
+ 
+ 'new pmt status
+ ActiveSheet.Range("G3:G" & Cells(Rows.Count, "B").End(xlUp).Row).FormulaR1C1 = _
+ "=IFERROR(IF(RC[-1]=0,"""",IF(RC[-1]=R1C6,""RENT DUE"",IF(RC[-1]<R1C6,R1C6-RC[-1]&"" ""&""DAYS"",""""))),"""")"
+ 
+  
+    
+End Sub
+
+
+
+
+
